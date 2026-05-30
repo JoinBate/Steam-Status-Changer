@@ -453,21 +453,29 @@ function connectToSteam(retrying) {
         });
     });
 
-    // 🔑 Сохранение нового ключа сессии
-    client.on('newLoginKey', () => {
-        if (client._sessionID && client.steamID) {
+    // 🔑 Сохранение loginKey (авторизация без Steam Guard при следующих запусках)
+    client.on('newLoginKey', (key) => {
+        const steamID = client.steamID ? client.steamID.getSteamID64() : null;
+        if (key && steamID) {
             configMgr.saveSession({
-                sessionID: client._sessionID,
-                steamID: client.steamID.getSteamID64(),
+                loginKey: key,
+                steamID: steamID,
+                sessionID: client._sessionID || null,
                 cookies: client._session ? client._session.cookies : []
             });
         }
     });
 
-    // Выбор способа входа: сессия (если есть) или логин + пароль
+    // Выбор способа входа: loginKey → сессия → логин + пароль
     console.log(chalk.cyan('🔑 Подключение к Steam...'));
     const savedSession = configMgr.loadSession();
-    if (savedSession && savedSession.sessionID && savedSession.steamID && !retrying) {
+    if (savedSession && savedSession.loginKey && !retrying) {
+        client.logOn({
+            accountName: username,
+            logonID: LOGON_ID,
+            loginKey: savedSession.loginKey
+        });
+    } else if (savedSession && savedSession.sessionID && savedSession.steamID && !retrying) {
         client.logOn({
             accountName: username,
             logonID: LOGON_ID,

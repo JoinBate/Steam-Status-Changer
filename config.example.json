@@ -1,0 +1,16 @@
+{
+    "_comment": "Скопируй этот файл в config.json и заполни свои данные.",
+    "account": {
+        "username": "YOUR_STEAM_LOGIN",
+        "password": "YOUR_STEAM_PASSWORD"
+    },
+    "settings": {
+        "interval_seconds": 30,
+        "phrases": [
+            "🎮 Работаю над проектом",
+            "☕ Пью кофе",
+            "💻 Пишу код"
+        ],
+        "afk_mode": false
+    }
+}

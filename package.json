@@ -1,0 +1,29 @@
+{
+    "name": "steam-status-changer",
+    "version": "2.0.0",
+    "description": "Автоматическая смена кастомного статуса (названия игры) в Steam через CLI",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "author": "JoinBate",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "keywords": [
+        "steam",
+        "status",
+        "custom-status",
+        "cli"
+    ],
+    "dependencies": {
+        "steam-user": "^5.0.0",
+        "steam-totp": "^2.1.2",
+        "chalk": "^4.1.2",
+        "inquirer": "^8.2.6",
+        "figlet": "^1.7.0",
+        "gradient-string": "^2.0.2"
+    }
+}

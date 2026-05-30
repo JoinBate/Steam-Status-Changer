@@ -16,6 +16,7 @@ let isRunning = false;
 // ─── Константы ───────────────────────────────────────────────────
 
 const APP_ID_SPACEWAR = 480;
+const LOGON_ID = 14455;
 const STATE_AWAY = 3;
 const AFK_CHECK_INTERVAL = 15000;
 const RECONNECT_TIMEOUT = 15000;
@@ -469,6 +470,7 @@ function connectToSteam(retrying) {
     if (savedSession && savedSession.sessionID && savedSession.steamID && !retrying) {
         client.logOn({
             accountName: username,
+            logonID: LOGON_ID,
             sessionID: savedSession.sessionID,
             steamID: savedSession.steamID,
             cookies: savedSession.cookies || []
@@ -476,6 +478,7 @@ function connectToSteam(retrying) {
     } else {
         client.logOn({
             accountName: username,
+            logonID: LOGON_ID,
             password: password
         });
     }
@@ -519,21 +522,37 @@ async function showMainMenu() {
     }
 }
 
-// ─── Завершение при Ctrl+C ──────────────────────────────────────
+// ─── Graceful Shutdown (Ctrl+C) ─────────────────────────────────
 
-function cleanup() {
-    stopStatusCycling();
+function gracefulShutdown() {
+    if (cycleTimer) {
+        clearInterval(cycleTimer);
+        cycleTimer = null;
+    }
+    if (afkTimer) {
+        clearInterval(afkTimer);
+        afkTimer = null;
+    }
+    if (steamClient) {
+        console.log(chalk.yellow('Отключение от Steam...'));
+        try {
+            steamClient.gamesPlayed([]);
+            steamClient.logOff();
+        } catch (e) { }
+        setTimeout(() => process.exit(0), 1000);
+    } else {
+        process.exit(0);
+    }
 }
 
 process.on('SIGINT', () => {
     console.log(chalk.yellow('\n\n👋 Завершение работы...'));
-    cleanup();
-    process.exit(0);
+    gracefulShutdown();
 });
 
 process.on('SIGTERM', () => {
-    cleanup();
-    process.exit(0);
+    console.log(chalk.yellow('\n\n👋 Завершение работы...'));
+    gracefulShutdown();
 });
 
 // ─── Точка входа ─────────────────────────────────────────────────
